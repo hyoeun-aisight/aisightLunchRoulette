@@ -82,33 +82,4 @@
 
 ---
 
-## 데이터 구조 예시
 
-```json
-attendance: {
-  "2026-04-15": {
-    "uid_1": {
-      "name": "Hyoeun",
-      "dept": "Manager"
-    },
-    "uid_2": {
-      "name": "Jamie",
-      "dept": "HE"
-    }
-  }
-}
-
-roulette: {
-  "2026-04-15": {
-    "teams": [
-      {
-        "label": "Team 1",
-        "members": [
-          { "name": "Hyoeun", "dept": "Manager" },
-          { "name": "Jamie", "dept": "HE" }
-        ]
-      }
-    ],
-    "timestamp": 1770000000000
-  }
-}
