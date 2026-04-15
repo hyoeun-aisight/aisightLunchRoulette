@@ -1,7 +1,4 @@
-# aisightLunchRoulette
-aisight lunch roulette
-
-# Aisight Lunch Roulette
+# AIsight Lunch Roulette
 
 수요일 팀 점심용 랜덤 팀 배정 페이지입니다.
 
