@@ -1,1 +1,1122 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>🍱 Aisight 점심</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Nanum+Gothic+Coding:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --cream: #fdf6ec;
+      --warm-white: #fffbf5;
+      --ink: #1a1208;
+      --ink-light: #5a4a35;
+      --korean: #e85d3a;
+      --chinese: #d4380d;
+      --western: #1872c8;
+      --japanese: #c41d7f;
+      --salad: #389e0d;
+      --alone: #7c5cfc;
+      --wed: #0e7490;
+      --border: #e8d9c0;
+      --shadow: rgba(90,60,20,.12);
+      --font-kr: "Nanum Gothic Coding", monospace;
+    }
+
+    body {
+      background-color: var(--cream);
+      background-image:
+        radial-gradient(ellipse at 20% 10%, rgba(232,93,58,.08) 0%, transparent 50%),
+        radial-gradient(ellipse at 80% 90%, rgba(124,92,252,.06) 0%, transparent 50%),
+        url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23c9a87a' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+      min-height: 100vh;
+      font-family: var(--font-kr);
+      color: var(--ink);
+    }
+
+    /* LOADING */
+    #loading-overlay {
+      position: fixed; inset: 0; background: var(--cream);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 999; flex-direction: column; gap: 16px;
+    }
+    .loading-spinner {
+      width: 40px; height: 40px; border: 3px solid var(--border);
+      border-top-color: var(--korean); border-radius: 50%;
+      animation: spin .8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-text { font-size: 14px; color: var(--ink-light); }
+
+    /* HEADER */
+    header { text-align: center; padding: 48px 20px 32px; }
+    .header-eyebrow {
+      font-size: 11px; letter-spacing: .3em; color: var(--ink-light);
+      text-transform: uppercase; margin-bottom: 12px;
+    }
+    header h1 { font-size: clamp(2rem,6vw,3.4rem); font-weight: 700; line-height: 1.2; }
+    .accent     { color: var(--korean); }
+    .accent-wed { color: var(--wed); }
+    .date-badge {
+      display: inline-flex; align-items: center; gap: 8px; margin-top: 16px;
+      background: var(--ink); color: var(--cream);
+      padding: 6px 18px; border-radius: 100px; font-size: 13px;
+    }
+    .total-badge {
+      display: inline-flex; align-items: center; gap: 6px;
+      margin-top: 10px; margin-left: 10px;
+      background: var(--korean); color: #fff;
+      padding: 6px 18px; border-radius: 100px; font-size: 13px;
+    }
+
+    /* LOCKED */
+    .locked-banner { max-width: 1100px; margin: 0 auto 24px; padding: 0 20px; }
+    .locked-inner {
+      background: var(--warm-white); border: 1.5px solid var(--border);
+      border-radius: 20px; padding: 40px 24px; text-align: center;
+      box-shadow: 0 4px 24px var(--shadow);
+    }
+    .lock-icon { font-size: 3rem; margin-bottom: 16px; }
+    .lock-title { font-size: 1.3rem; font-weight: 700; margin-bottom: 10px; }
+    .lock-desc { font-size: 14px; color: var(--ink-light); line-height: 1.8; }
+    .day-pills { display: flex; gap: 8px; justify-content: center; margin-top: 20px; flex-wrap: wrap; }
+    .day-pill { padding: 6px 16px; border-radius: 100px; font-size: 13px; font-weight: 700; border: 1.5px solid var(--border); }
+    .day-pill.on  { background: var(--korean); color: #fff; border-color: var(--korean); }
+    .day-pill.off { background: transparent; color: var(--ink-light); }
+
+    /* MONDAY GRID */
+    .grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 20px; max-width: 1100px; margin: 0 auto; padding: 0 20px 40px;
+    }
+    .card {
+      background: var(--warm-white); border: 1.5px solid var(--border);
+      border-radius: 20px; padding: 24px; box-shadow: 0 4px 24px var(--shadow);
+      transition: transform .2s, box-shadow .2s; position: relative; overflow: hidden;
+    }
+    .card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0;
+      height: 4px; border-radius: 20px 20px 0 0;
+    }
+    .card-korean::before  { background: var(--korean); }
+    .card-chinese::before { background: var(--chinese); }
+    .card-western::before { background: var(--western); }
+    .card-japanese::before{ background: var(--japanese); }
+    .card-salad::before   { background: var(--salad); }
+    .card-alone::before   { background: var(--alone); }
+    .card:hover { transform: translateY(-3px); box-shadow: 0 10px 40px var(--shadow); }
+    .card-alone { grid-column: 1/-1; }
+
+    .card-header { display: flex; align-items: center; gap: 12px; margin-bottom: 18px; }
+    .card-emoji {
+      font-size: 2rem; width: 52px; height: 52px; border-radius: 14px;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .card-korean  .card-emoji { background: rgba(232,93,58,.10); }
+    .card-chinese .card-emoji { background: rgba(212,56,13,.10); }
+    .card-western .card-emoji { background: rgba(24,114,200,.10); }
+    .card-japanese .card-emoji{ background: rgba(196,29,127,.10); }
+    .card-salad   .card-emoji { background: rgba(56,158,13,.10); }
+    .card-alone   .card-emoji { background: rgba(124,92,252,.10); }
+
+    .card-title { font-size: 1.2rem; font-weight: 700; }
+    .card-subtitle { font-size: 11px; color: var(--ink-light); margin-top: 2px; }
+    .count-pill {
+      margin-left: auto; color: #fff; font-size: 13px; font-weight: 700;
+      min-width: 28px; height: 28px; border-radius: 100px;
+      display: flex; align-items: center; justify-content: center; padding: 0 10px;
+    }
+    .card-korean  .count-pill { background: var(--korean); }
+    .card-chinese .count-pill { background: var(--chinese); }
+    .card-western .count-pill { background: var(--western); }
+    .card-japanese .count-pill{ background: var(--japanese); }
+    .card-salad   .count-pill { background: var(--salad); }
+    .card-alone   .count-pill { background: var(--alone); }
+
+    .input-row { display: flex; gap: 8px; margin-bottom: 16px; }
+    .input-row input {
+      flex: 1; border: 1.5px solid var(--border); border-radius: 12px;
+      padding: 10px 14px; font-family: var(--font-kr); font-size: 14px;
+      background: var(--cream); color: var(--ink); outline: none; transition: border-color .2s;
+    }
+    .input-row input::placeholder { color: #b8a898; }
+    .card-korean  .input-row input:focus { border-color: var(--korean); }
+    .card-chinese .input-row input:focus { border-color: var(--chinese); }
+    .card-western .input-row input:focus { border-color: var(--western); }
+    .card-japanese .input-row input:focus{ border-color: var(--japanese); }
+    .card-salad   .input-row input:focus { border-color: var(--salad); }
+    .card-alone   .input-row input:focus { border-color: var(--alone); }
+
+    .btn-add {
+      color: #fff; border: none; border-radius: 12px; padding: 10px 16px;
+      font-size: 18px; cursor: pointer; transition: opacity .2s, transform .1s; line-height: 1;
+    }
+    .card-korean  .btn-add { background: var(--korean); }
+    .card-chinese .btn-add { background: var(--chinese); }
+    .card-western .btn-add { background: var(--western); }
+    .card-japanese .btn-add{ background: var(--japanese); }
+    .card-salad   .btn-add { background: var(--salad); }
+    .card-alone   .btn-add { background: var(--alone); }
+    .btn-add:hover { opacity: .85; }
+    .btn-add:active { transform: scale(.95); }
+
+    .name-list { display: flex; flex-wrap: wrap; gap: 8px; min-height: 36px; }
+    .name-tag {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 6px 12px; border-radius: 100px; font-size: 13px;
+      animation: popIn .25s cubic-bezier(.175,.885,.32,1.275);
+    }
+    .card-korean  .name-tag { background: rgba(232,93,58,.12);  border: 1px solid rgba(232,93,58,.25); }
+    .card-chinese .name-tag { background: rgba(212,56,13,.12);  border: 1px solid rgba(212,56,13,.25); }
+    .card-western .name-tag { background: rgba(24,114,200,.12); border: 1px solid rgba(24,114,200,.25); }
+    .card-japanese .name-tag{ background: rgba(196,29,127,.12); border: 1px solid rgba(196,29,127,.25); }
+    .card-salad   .name-tag { background: rgba(56,158,13,.12);  border: 1px solid rgba(56,158,13,.25); }
+    .card-alone   .name-tag { background: rgba(124,92,252,.12); border: 1px solid rgba(124,92,252,.25); }
+    @keyframes popIn {
+      from { transform: scale(.5); opacity: 0; }
+      to   { transform: scale(1);  opacity: 1; }
+    }
+    .name-tag .remove-btn {
+      background: none; border: none; cursor: pointer; color: var(--ink-light);
+      font-size: 14px; line-height: 1; padding: 0;
+      display: flex; align-items: center; transition: color .15s, transform .15s;
+    }
+    .name-tag .remove-btn:hover { color: #e83a3a; transform: rotate(90deg); }
+    .name-tag.readonly { opacity: .75; }
+    .empty-hint { font-size: 12px; color: #c0a888; font-style: italic; align-self: center; }
+
+    /* SUMMARY */
+    .summary { max-width: 1100px; margin: 0 auto 24px; padding: 0 20px; }
+    .summary-inner {
+      background: var(--ink); color: var(--cream); border-radius: 16px;
+      padding: 18px 24px; display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: center;
+    }
+    .summary-label { font-size: 12px; letter-spacing: .2em; opacity: .5; text-transform: uppercase; width: 100%; }
+    .summary-item { display: flex; align-items: center; gap: 6px; font-size: 14px; }
+    .summary-dot { width: 10px; height: 10px; border-radius: 50%; }
+
+    /* CUSTOM MENU */
+    .custom-section { max-width: 1100px; margin: 0 auto 16px; padding: 0 20px; }
+    .custom-section-title {
+      font-size: 13px; font-weight: 700; color: var(--ink-light);
+      letter-spacing: .15em; text-transform: uppercase; margin-bottom: 14px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .custom-section-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+    .custom-propose-bar {
+      background: var(--warm-white); border: 1.5px solid var(--border);
+      border-radius: 16px; padding: 16px 18px; display: flex; gap: 8px;
+      margin-bottom: 14px; box-shadow: 0 2px 12px var(--shadow); flex-wrap: wrap;
+    }
+    .custom-propose-bar input {
+      flex: 1; min-width: 120px; border: 1.5px solid var(--border); border-radius: 10px;
+      padding: 9px 13px; font-family: var(--font-kr); font-size: 14px;
+      background: var(--cream); color: var(--ink); outline: none; transition: border-color .2s;
+    }
+    .custom-propose-bar input:focus { border-color: #f0a500; }
+    .custom-propose-bar input::placeholder { color: #b8a898; }
+    .btn-propose {
+      background: #f0a500; color: #fff; border: none; border-radius: 10px;
+      padding: 9px 18px; font-family: var(--font-kr); font-size: 14px; font-weight: 700;
+      cursor: pointer; transition: opacity .2s; white-space: nowrap;
+    }
+    .btn-propose:hover { opacity: .85; }
+    .custom-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px,1fr)); gap: 14px; }
+    .custom-card {
+      background: var(--warm-white); border: 1.5px solid var(--border);
+      border-radius: 16px; padding: 18px 18px 14px;
+      box-shadow: 0 3px 16px var(--shadow); position: relative;
+      animation: popIn .25s cubic-bezier(.175,.885,.32,1.275);
+    }
+    .custom-card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0;
+      height: 3px; border-radius: 16px 16px 0 0; background: #f0a500;
+    }
+    .custom-card-header { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 12px; }
+    .custom-menu-name { font-size: 1.05rem; font-weight: 700; flex: 1; }
+    .custom-proposer { font-size: 11px; color: var(--ink-light); margin-top: 2px; }
+    .custom-delete-btn {
+      background: none; border: none; cursor: pointer; color: #cbb89a;
+      font-size: 16px; padding: 2px 4px; transition: color .15s, transform .15s; flex-shrink: 0;
+    }
+    .custom-delete-btn:hover { color: #e83a3a; transform: rotate(90deg); }
+    .custom-joiners { display: flex; flex-wrap: wrap; gap: 6px; min-height: 28px; margin-bottom: 12px; }
+    .custom-joiner-tag {
+      display: inline-flex; align-items: center; gap: 5px;
+      background: rgba(240,165,0,.12); border: 1px solid rgba(240,165,0,.3);
+      padding: 4px 10px; border-radius: 100px; font-size: 12px;
+    }
+    .custom-joiner-tag.is-mine { background: rgba(240,165,0,.22); border-color: rgba(240,165,0,.5); font-weight: 700; }
+    .custom-joiner-tag .leave-btn {
+      background: none; border: none; cursor: pointer; color: var(--ink-light);
+      font-size: 11px; padding: 0; transition: color .15s;
+    }
+    .custom-joiner-tag .leave-btn:hover { color: #e83a3a; }
+    .btn-join {
+      width: 100%; background: transparent; border: 1.5px dashed rgba(240,165,0,.5);
+      color: #c88400; border-radius: 10px; padding: 8px;
+      font-family: var(--font-kr); font-size: 13px; font-weight: 700; cursor: pointer; transition: all .2s;
+    }
+    .btn-join:hover { background: rgba(240,165,0,.1); border-color: #f0a500; }
+    .custom-join-input-row { display: flex; gap: 6px; margin-top: 8px; }
+    .custom-join-input-row input {
+      flex: 1; border: 1.5px solid rgba(240,165,0,.4); border-radius: 8px;
+      padding: 7px 11px; font-family: var(--font-kr); font-size: 13px;
+      background: var(--cream); color: var(--ink); outline: none;
+    }
+    .custom-join-input-row input:focus { border-color: #f0a500; }
+    .btn-join-confirm {
+      background: #f0a500; color: #fff; border: none; border-radius: 8px;
+      padding: 7px 13px; font-family: var(--font-kr); font-size: 13px; font-weight: 700; cursor: pointer;
+    }
+    .custom-empty { font-size: 13px; color: #c0a888; font-style: italic; text-align: center; padding: 20px; grid-column: 1/-1; }
+
+    /* ACTIONS */
+    .actions { text-align: center; padding: 0 20px 40px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+    .btn-reset {
+      background: transparent; border: 2px solid var(--border); color: var(--ink-light);
+      padding: 12px 32px; border-radius: 100px; font-family: var(--font-kr);
+      font-size: 14px; cursor: pointer; transition: all .2s;
+    }
+    .btn-reset:hover { background: var(--ink); color: var(--cream); border-color: var(--ink); }
+
+    /* WEDNESDAY ROULETTE */
+    #wed-page { max-width: 900px; margin: 0 auto; padding: 0 20px 60px; }
+
+    .wed-panel {
+      background: var(--warm-white); border: 1.5px solid var(--border);
+      border-radius: 20px; padding: 24px; margin-bottom: 24px;
+      box-shadow: 0 4px 24px var(--shadow);
+    }
+    .section-label {
+      font-size: 13px; font-weight: 700; color: var(--ink-light);
+      letter-spacing: .15em; text-transform: uppercase; margin-bottom: 16px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .section-label::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+
+    .attendance-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(130px,1fr)); gap: 8px; margin-bottom: 16px;
+    }
+    .attend-chip {
+      display: flex; align-items: center; gap: 8px; padding: 8px 12px;
+      border-radius: 12px; cursor: pointer; border: 1.5px solid var(--border);
+      background: var(--cream); transition: all .15s; user-select: none;
+    }
+    .attend-chip.checked { background: rgba(14,116,144,.12); border-color: var(--wed); }
+    .chip-dot {
+      width: 10px; height: 10px; border-radius: 50%;
+      border: 2px solid var(--border); flex-shrink: 0; transition: all .15s;
+    }
+    .attend-chip.checked .chip-dot { background: var(--wed); border-color: var(--wed); }
+    .chip-name { font-size: 13px; font-weight: 700; }
+    .chip-dept { font-size: 10px; color: var(--ink-light); }
+    .attend-count { font-size: 13px; color: var(--ink-light); margin-bottom: 12px; }
+    .attend-count strong { color: var(--wed); }
+
+    .btn-spin {
+      width: 100%; background: var(--wed); color: #fff; border: none;
+      border-radius: 14px; padding: 14px; font-family: var(--font-kr);
+      font-size: 16px; font-weight: 700; cursor: pointer;
+      transition: opacity .2s, transform .1s;
+    }
+    .btn-spin:hover { opacity: .88; }
+    .btn-spin:active { transform: scale(.98); }
+    .btn-spin:disabled { opacity: .4; cursor: not-allowed; }
+
+    .roulette-stage {
+      background: var(--warm-white); border: 1.5px solid var(--border);
+      border-radius: 20px; padding: 32px 24px; margin-bottom: 24px;
+      box-shadow: 0 4px 24px var(--shadow); text-align: center;
+      min-height: 120px; display: flex; align-items: center; justify-content: center;
+    }
+    .roulette-idle { font-size: 14px; color: #c0a888; font-style: italic; }
+    .roulette-spinning { font-size: 2rem; font-weight: 700; color: var(--wed); animation: flash .12s infinite; }
+    @keyframes flash { 0%,100%{opacity:1;} 50%{opacity:.3;} }
+
+    .results-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px,1fr)); gap: 14px; }
+    .result-team {
+      background: var(--warm-white); border: 1.5px solid var(--border);
+      border-radius: 16px; padding: 18px; box-shadow: 0 3px 16px var(--shadow);
+      animation: popIn .35s cubic-bezier(.175,.885,.32,1.275) both;
+    }
+    .result-team-label { font-size: 11px; font-weight: 700; letter-spacing: .15em; text-transform: uppercase; margin-bottom: 10px; }
+    .result-member {
+      display: flex; align-items: center; gap: 8px; padding: 5px 0;
+      border-bottom: 1px solid var(--border); font-size: 14px;
+    }
+    .result-member:last-child { border-bottom: none; }
+    .dept-tag {
+      font-size: 10px; color: var(--ink-light); background: var(--cream);
+      padding: 2px 6px; border-radius: 100px; border: 1px solid var(--border); margin-left: auto;
+    }
+
+    /* MODALS */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(26,18,8,.55); z-index: 200;
+      align-items: center; justify-content: center;
+    }
+    .modal-overlay.open { display: flex; }
+    .modal-box {
+      background: var(--warm-white); border: 1.5px solid var(--border);
+      border-radius: 20px; padding: 32px 28px 24px; width: min(420px,90vw);
+      box-shadow: 0 20px 60px rgba(26,18,8,.25);
+      animation: slideUp .25s cubic-bezier(.175,.885,.32,1.275);
+    }
+    @keyframes slideUp { from{transform:translateY(20px);opacity:0;} to{transform:translateY(0);opacity:1;} }
+    .modal-icon { font-size: 2.8rem; text-align: center; margin-bottom: 12px; }
+    .modal-title { font-size: 1.2rem; font-weight: 700; text-align: center; margin-bottom: 6px; }
+    .modal-desc { font-size: 13px; color: var(--ink-light); text-align: center; margin-bottom: 20px; line-height: 1.8; }
+    .modal-input {
+      width: 100%; border: 1.5px solid var(--border); border-radius: 12px;
+      padding: 12px 16px; font-family: var(--font-kr); font-size: 15px;
+      background: var(--cream); color: var(--ink); outline: none;
+      transition: border-color .2s; margin-bottom: 8px; letter-spacing: .1em;
+    }
+    .modal-input:focus { border-color: var(--korean); }
+    .modal-input.error { border-color: #e83a3a; animation: shake .3s ease; }
+    @keyframes shake { 0%,100%{transform:translateX(0);} 25%{transform:translateX(-6px);} 75%{transform:translateX(6px);} }
+    .modal-error { font-size: 12px; color: #e83a3a; min-height: 18px; margin-bottom: 16px; text-align: center; }
+    .modal-btns { display: flex; gap: 10px; }
+    .btn-cancel {
+      flex: 1; background: transparent; border: 1.5px solid var(--border); color: var(--ink-light);
+      padding: 11px; border-radius: 12px; font-family: var(--font-kr); font-size: 14px; cursor: pointer; transition: all .2s;
+    }
+    .btn-cancel:hover { background: var(--cream); }
+    .btn-confirm {
+      flex: 1; background: #e83a3a; border: none; color: #fff; padding: 11px;
+      border-radius: 12px; font-family: var(--font-kr); font-size: 14px; cursor: pointer; transition: opacity .2s;
+    }
+    .btn-confirm:hover { opacity: .85; }
+
+    /* WOMEN POPUP */
+    .women-list { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 20px; justify-content: center; }
+    .women-chip {
+      background: rgba(196,29,127,.1); border: 1px solid rgba(196,29,127,.25);
+      color: var(--japanese); padding: 4px 12px; border-radius: 100px; font-size: 13px;
+    }
+    .btn-women-ok {
+      width: 100%; background: var(--japanese); color: #fff; border: none;
+      border-radius: 12px; padding: 13px; font-family: var(--font-kr);
+      font-size: 15px; font-weight: 700; cursor: pointer; transition: opacity .2s;
+    }
+    .btn-women-ok:hover { opacity: .85; }
+
+    footer { text-align: center; padding: 0 20px 40px; font-size: 12px; color: var(--ink-light); opacity: .5; letter-spacing: .05em; }
+
+    @media (max-width: 640px) {
+      .grid { grid-template-columns: 1fr; }
+      .card-alone { grid-column: 1; }
+      .results-grid { grid-template-columns: 1fr; }
+      .custom-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<div id="loading-overlay">
+  <div class="loading-spinner"></div>
+  <div class="loading-text">데이터 불러오는 중...</div>
+</div>
+
+<header>
+  <p class="header-eyebrow">Aisight Korea Office · Team Lunch Organizer</p>
+  <h1 id="main-title">오늘 점심<span class="accent">,</span><br>뭐 드실 건가요?</h1>
+  <div style="margin-top:16px;">
+    <span class="date-badge">📅 <span id="today-date"></span></span>
+    <span class="total-badge" id="total-badge">👥 총 <span id="total-count">0</span>명 참여</span>
+    <div style="
+  margin-top:10px;
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  background:#fff3cd;
+  color:#856404;
+  padding:6px 14px;
+  border-radius:999px;
+  font-size:13px;
+  border:1px solid #ffeeba;
+">
+  💸 점심 지원비: 1인 최대 30,000원(커피 포함)
+</div>
+  </div>
+</header>
+
+<!-- 잠금 -->
+<div class="locked-banner" id="locked-banner" style="display:none">
+  <div class="locked-inner">
+    <div class="lock-icon">🔒</div>
+    <div class="lock-title">오늘은 점심 팀 모집 날이 아니에요</div>
+    <p class="lock-desc">팀 점심은 <strong>월요일</strong>과 <strong>수요일</strong>에만 진행돼요.<br>다음 모집일에 다시 만나요!</p>
+    <div class="day-pills" id="day-pills"></div>
+  </div>
+</div>
+
+<!-- 월요일 콘텐츠 -->
+<div id="mon-content" style="display:none">
+  <div class="summary">
+    <div class="summary-inner">
+      <span class="summary-label">오늘의 팀 현황</span>
+      <div class="summary-item"><span class="summary-dot" style="background:var(--korean)"></span> 한식 <strong id="s-korean">0</strong>명</div>
+      <div class="summary-item"><span class="summary-dot" style="background:var(--chinese)"></span> 중식 <strong id="s-chinese">0</strong>명</div>
+      <div class="summary-item"><span class="summary-dot" style="background:var(--western)"></span> 양식 <strong id="s-western">0</strong>명</div>
+      <div class="summary-item"><span class="summary-dot" style="background:var(--japanese)"></span> 일식 <strong id="s-japanese">0</strong>명</div>
+      <div class="summary-item"><span class="summary-dot" style="background:var(--salad)"></span> 샐러드 <strong id="s-salad">0</strong>명</div>
+      <div class="summary-item"><span class="summary-dot" style="background:var(--alone)"></span> 혼자 <strong id="s-alone">0</strong>명</div>
+    </div>
+  </div>
+
+  <div class="grid">
+    <div class="card card-korean">
+      <div class="card-header">
+        <div class="card-emoji">🍚</div>
+        <div><div class="card-title">한식</div><div class="card-subtitle">Korean Food</div></div>
+        <div class="count-pill" id="count-korean">0</div>
+      </div>
+      <div class="input-row">
+        <input type="text" placeholder="이름 입력 후 Enter" id="input-korean" maxlength="10">
+        <button class="btn-add" onclick="addName('korean')">＋</button>
+      </div>
+      <div class="name-list" id="list-korean"><span class="empty-hint">아직 아무도 없어요</span></div>
+    </div>
+    <div class="card card-chinese">
+      <div class="card-header">
+        <div class="card-emoji">🥢</div>
+        <div><div class="card-title">중식</div><div class="card-subtitle">Chinese Food</div></div>
+        <div class="count-pill" id="count-chinese">0</div>
+      </div>
+      <div class="input-row">
+        <input type="text" placeholder="이름 입력 후 Enter" id="input-chinese" maxlength="10">
+        <button class="btn-add" onclick="addName('chinese')">＋</button>
+      </div>
+      <div class="name-list" id="list-chinese"><span class="empty-hint">아직 아무도 없어요</span></div>
+    </div>
+    <div class="card card-western">
+      <div class="card-header">
+        <div class="card-emoji">🍝</div>
+        <div><div class="card-title">양식</div><div class="card-subtitle">Western Food</div></div>
+        <div class="count-pill" id="count-western">0</div>
+      </div>
+      <div class="input-row">
+        <input type="text" placeholder="이름 입력 후 Enter" id="input-western" maxlength="10">
+        <button class="btn-add" onclick="addName('western')">＋</button>
+      </div>
+      <div class="name-list" id="list-western"><span class="empty-hint">아직 아무도 없어요</span></div>
+    </div>
+    <div class="card card-japanese">
+      <div class="card-header">
+        <div class="card-emoji">🍣</div>
+        <div><div class="card-title">일식</div><div class="card-subtitle">Japanese Food</div></div>
+        <div class="count-pill" id="count-japanese">0</div>
+      </div>
+      <div class="input-row">
+        <input type="text" placeholder="이름 입력 후 Enter" id="input-japanese" maxlength="10">
+        <button class="btn-add" onclick="addName('japanese')">＋</button>
+      </div>
+      <div class="name-list" id="list-japanese"><span class="empty-hint">아직 아무도 없어요</span></div>
+    </div>
+    <div class="card card-salad">
+      <div class="card-header">
+        <div class="card-emoji">🥗</div>
+        <div><div class="card-title">샐러드</div><div class="card-subtitle">Salad</div></div>
+        <div class="count-pill" id="count-salad">0</div>
+      </div>
+      <div class="input-row">
+        <input type="text" placeholder="이름 입력 후 Enter" id="input-salad" maxlength="10">
+        <button class="btn-add" onclick="addName('salad')">＋</button>
+      </div>
+      <div class="name-list" id="list-salad"><span class="empty-hint">아직 아무도 없어요</span></div>
+    </div>
+    <div class="card card-alone">
+      <div class="card-header">
+        <div class="card-emoji">🚶</div>
+        <div><div class="card-title">혼자 — 따로 먹을게요!</div><div class="card-subtitle">Going Solo Today</div></div>
+        <div class="count-pill" id="count-alone">0</div>
+      </div>
+      <div class="input-row">
+        <input type="text" placeholder="이름 입력 후 Enter" id="input-alone" maxlength="10">
+        <button class="btn-add" onclick="addName('alone')">＋</button>
+      </div>
+      <div class="name-list" id="list-alone"><span class="empty-hint">아직 아무도 없어요</span></div>
+    </div>
+  </div>
+
+  <div class="custom-section">
+    <div class="custom-section-title">🍽️ 다른 메뉴 먹고 싶어요</div>
+    <div class="custom-propose-bar">
+      <input type="text" id="input-menu-name" placeholder="메뉴 이름 (예: 마라탕, 버거킹)" maxlength="20">
+      <input type="text" id="input-proposer-name" placeholder="내 이름" maxlength="10">
+      <button class="btn-propose" onclick="proposeMenu()">제안하기</button>
+    </div>
+    <div class="custom-grid" id="custom-grid">
+      <div class="custom-empty">아직 제안된 메뉴가 없어요</div>
+    </div>
+  </div>
+
+  <div class="actions">
+    <button class="btn-reset" onclick="openResetModal()">🗑️ 오늘 데이터 초기화 (관리자)</button>
+  </div>
+</div>
+
+<!-- 수요일 룰렛 -->
+<div id="wed-page" style="display:none">
+
+  <!-- 관리자 출석 패널 -->
+  <div class="wed-panel" id="admin-panel" style="display:none">
+    <div class="section-label">🔐 관리자 — 출석 체크</div>
+    <div class="attend-count">출석 인원: <strong id="attend-count-num">0</strong>명 선택됨</div>
+    <div class="attendance-grid" id="attendance-grid"></div>
+    <button class="btn-spin" id="btn-spin" onclick="spinRoulette()" disabled>🎲 팀 뽑기!</button>
+  </div>
+
+  <!-- 비관리자 로그인 -->
+  <div style="text-align:center;margin-bottom:20px;" id="admin-login-area">
+    <button class="btn-reset" onclick="openAdminLogin()">🔐 관리자 로그인하여 룰렛 돌리기</button>
+  </div>
+
+  <!-- 룰렛 스테이지 -->
+  <div class="roulette-stage" id="roulette-stage">
+    <div class="roulette-idle">관리자가 팀을 뽑으면 결과가 여기 나타나요 🎲</div>
+  </div>
+
+  <!-- 결과 -->
+  <div class="results-grid" id="results-grid"></div>
+
+  <div class="actions" style="margin-top:24px;">
+    <button class="btn-reset" onclick="clearRouletteResult()">🗑️ 결과 초기화 (관리자)</button>
+  </div>
+</div>
+
+<!-- 초기화 모달 -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal-box">
+    <div class="modal-icon">🔐</div>
+    <div class="modal-title">관리자 확인</div>
+    <p class="modal-desc">데이터 초기화는 관리자만 할 수 있어요.<br>비밀번호를 입력해 주세요.</p>
+    <input type="password" class="modal-input" id="pw-input" placeholder="비밀번호" maxlength="30"
+      onkeydown="if(event.key==='Enter') doReset()">
+    <div class="modal-error" id="pw-error"></div>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal()">취소</button>
+      <button class="btn-confirm" onclick="doReset()">초기화하기</button>
+    </div>
+  </div>
+</div>
+
+<!-- 관리자 로그인 모달 -->
+<div class="modal-overlay" id="admin-login-modal">
+  <div class="modal-box">
+    <div class="modal-icon">🎲</div>
+    <div class="modal-title">관리자 로그인</div>
+    <p class="modal-desc">룰렛은 관리자만 돌릴 수 있어요.</p>
+    <input type="password" class="modal-input" id="admin-pw-input" placeholder="비밀번호" maxlength="30"
+      onkeydown="if(event.key==='Enter') doAdminLogin()">
+    <div class="modal-error" id="admin-pw-error"></div>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeAdminLogin()">취소</button>
+      <button class="btn-confirm" style="background:var(--wed)" onclick="doAdminLogin()">로그인</button>
+    </div>
+  </div>
+</div>
+
+<!-- 여성 점심 팝업 -->
+<div class="modal-overlay" id="women-popup">
+  <div class="modal-box" style="border-color:rgba(196,29,127,.3)">
+    <div class="modal-icon">👩‍👩‍👧‍👧</div>
+    <div class="modal-title" style="color:var(--japanese)">여성 점심 데이 🌸</div>
+    <p class="modal-desc">
+      매월 마지막 주 월요일은<br>
+      <strong>여성 팀원들끼리 특별한 점심</strong> 먹는 날이에요!<br>
+      남성 팀원 여러분은 평소처럼 팀을 나눠요 💪
+    </p>
+    <div class="women-list" id="women-list"></div>
+    <button class="btn-women-ok" onclick="closeWomenPopup()">식사 맛있게 하세요! </button>
+  </div>
+</div>
+
+<footer>© 2026 Aisight Korea. All rights reserved.</footer>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+  import { getDatabase, ref, set, remove, onValue, get } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-database.js";
+
+  /* ── 직원 데이터 ── */
+  const WOMEN_LIST = ['Hyoeun','Jamie','Hyunjung','Junhee','Yeojin','Yubin','Nayoung','Reeneu','Haneul'];
+
+  const ALL_MEMBERS = [
+    { name:'Hyoeun',   dept:'Manager',       gender:'F' },
+    { name:'Hyunjung', dept:'HR',       gender:'F' },
+    { name:'Haneul',   dept:'HR',       gender:'F' },
+    { name:'Reeneu',   dept:'UXUI',     gender:'F' },
+    { name:'Nayoung',  dept:'UXUI',     gender:'F' },
+    { name:'Junhee',   dept:'HE',       gender:'F' },
+    { name:'Jamie',    dept:'HE',       gender:'F' },
+    { name:'Yubin',    dept:'Embedded', gender:'F' },
+    { name:'Yeojin',   dept:'Embedded', gender:'F' },
+    { name:'Bosung',   dept:'UXUI',     gender:'M' },
+    { name:'Ryan',     dept:'UXUI',     gender:'M' },
+    { name:'Jihoon',   dept:'HE',       gender:'M' },
+    { name:'Minhyuk',  dept:'HE',       gender:'M' },
+    { name:'Wooyoung', dept:'HE',       gender:'M' },
+    { name:'Sangwoon', dept:'Embedded', gender:'M' },
+    { name:'Akmal',    dept:'Embedded', gender:'M' },
+    { name:'Minseok',  dept:'Android',  gender:'M' },
+    { name:'Sangsu',  dept:'Android',  gender:'M' },
+    { name:'Dowoo',    dept:'Android',  gender:'M' },
+    { name:'El',       dept:'Android',  gender:'M' },
+    { name:'JunO',     dept:'ALML',     gender:'M' },
+    { name:'Hyunil',   dept:'ALML',     gender:'M' },
+    { name:'Doyoung',  dept:'Manager',       gender:'M' },
+    { name:'Sejun',    dept:'PM',       gender:'M' },
+    { name:'Taesoo',   dept:'AE',       gender:'M' },
+    { name:'Won',  dept:'Embedded',   gender:'M' },
+    { name:'Siyeong',  dept:'QA',   gender:'M' },
+    { name:'Jongmin',  dept:'QA',   gender:'M' },
+  ];
+
+  const CATEGORIES  = ['korean','chinese','western','japanese','salad','alone'];
+  const ALLOWED_DAYS = [1, 3]
+  const DAY_NAMES    = ['일','월','화','수','목','금','토'];
+  const ADMIN_PASSWORD = 'hyoeun01';
+
+  /* ── Firebase ── */
+  const firebaseConfig = {
+    apiKey: "AIzaSyDwYLPPFyBsAZzHuAFCkH1Z6GrI7_0T8BI",
+    authDomain: "aisight-meeting-room.firebaseapp.com",
+    databaseURL: "https://aisight-meeting-room-default-rtdb.firebaseio.com",
+    projectId: "aisight-meeting-room",
+    storageBucket: "aisight-meeting-room.firebasestorage.app",
+    messagingSenderId: "100124839761",
+    appId: "1:100124839761:web:4883bd96813bab53f00d70",
+  };
+  const app = initializeApp(firebaseConfig);
+  const db  = getDatabase(app);
+
+  /* ── 날짜/요일 ── */
+  const NOW = new Date();
+  const TODAY = `${NOW.getFullYear()}-${String(NOW.getMonth()+1).padStart(2,'0')}-${String(NOW.getDate()).padStart(2,'0')}`;
+  const DOW = NOW.getDay();
+
+const isMonday    = () => DOW === 1;
+const isWednesday = () => DOW === 3;
+const isAllowed   = () => ALLOWED_DAYS.includes(DOW);
+
+  function isLastMondayOfMonth() {
+    if (!isMonday()) return false;
+    const next = new Date(NOW); next.setDate(NOW.getDate()+7);
+    return next.getMonth() !== NOW.getMonth();
+  }
+
+  /* ── Firebase refs ── */
+  const rootRef      = () => ref(db, `lunch/${TODAY}`);
+  const entryRef     = (cat,uid) => ref(db, `lunch/${TODAY}/${cat}/${uid}`);
+  const customRoot   = () => ref(db, `lunch/${TODAY}/custom`);
+  const customMenu   = (id) => ref(db, `lunch/${TODAY}/custom/${id}`);
+  const customJoiner = (mid,uid) => ref(db, `lunch/${TODAY}/custom/${mid}/joiners/${uid}`);
+  const rouletteRef  = () => ref(db, `roulette/${TODAY}`);
+
+  /* ── 본인 ID ── */
+  function getMyId() {
+    let id = localStorage.getItem('lunch_uid');
+    if (!id) { id='u_'+Math.random().toString(36).slice(2,10)+Date.now().toString(36); localStorage.setItem('lunch_uid',id); }
+    return id;
+  }
+  const MY_ID = getMyId();
+
+  let isAdmin = false;
+  let checkedMembers = new Set();
+
+  /* ── 날짜 표시 ── */
+  document.getElementById('today-date').textContent = NOW.toLocaleDateString('ko-KR',{
+    year:'numeric', month:'long', day:'numeric', weekday:'short'
+  });
+
+  /* ══════════ 라우팅 ══════════ */
+  function route() {
+  const loading = document.getElementById('loading-overlay');
+  const params = new URLSearchParams(location.search);
+  const page = params.get('page');
+
+  // 1) URL로 강제 진입
+  if (page === 'roulette') {
+    document.getElementById('main-title').innerHTML = '수요일은<span class="accent-wed">,</span><br>팀 뽑기 데이 🎲';
+    document.getElementById('total-badge').style.display = 'none';
+    document.getElementById('wed-page').style.display = 'block';
+
+    onValue(rouletteRef(), snap => {
+      loading.style.display = 'none';
+      renderRouletteResult(snap.val());
+    });
+    return;
+  }
+
+  if (page === 'lunch') {
+    document.getElementById('main-title').innerHTML = '오늘 점심<span class="accent">,</span><br>뭐 드실 건가요?';
+    document.getElementById('total-badge').style.display = 'inline-flex';
+    document.getElementById('mon-content').style.display = 'block';
+
+    if (isLastMondayOfMonth()) showWomenPopup();
+
+    onValue(rootRef(), snap => {
+      loading.style.display = 'none';
+      const d = snap.val() || {};
+      renderMonData(d);
+      renderCustomMenus(d.custom || {});
+    });
+    return;
+  }
+
+  // 2) 기본 진입은 월/수만 허용
+  if (!isAllowed()) {
+    document.getElementById('locked-banner').style.display = 'block';
+    loading.style.display = 'none';
+
+    const pillsEl = document.getElementById('day-pills');
+    pillsEl.innerHTML = '';
+    DAY_NAMES.forEach((name, i) => {
+      const pill = document.createElement('span');
+      pill.className = 'day-pill ' + (ALLOWED_DAYS.includes(i) ? 'on' : 'off');
+      pill.textContent = name;
+      pillsEl.appendChild(pill);
+    });
+    return;
+  }
+
+if (isWednesday() || isMonday()) {
+document.getElementById('main-title').innerHTML =
+  isWednesday()
+    ? '월요일, 수요일<span class="accent-wed">,</span><br>Aisight 랜덤 팀 점심 데이 🎲'
+    : '월요일, 수요일<span class="accent">,</span><br>Aisight 랜덤 팀 점심 🎲';    document.getElementById('total-badge').style.display = 'none';
+    document.getElementById('wed-page').style.display = 'block';
+
+    onValue(rouletteRef(), snap => {
+      loading.style.display = 'none';
+      renderRouletteResult(snap.val());
+    });
+    return;
+  }
+
+  if (isMonday()) {
+    document.getElementById('main-title').innerHTML = '오늘 점심<span class="accent">,</span><br>뭐 드실 건가요?';
+    document.getElementById('total-badge').style.display = 'inline-flex';
+    document.getElementById('mon-content').style.display = 'block';
+
+    if (isLastMondayOfMonth()) showWomenPopup();
+
+    onValue(rootRef(), snap => {
+      loading.style.display = 'none';
+      const d = snap.val() || {};
+      renderMonData(d);
+      renderCustomMenus(d.custom || {});
+    });
+    return;
+  }
+
+  // 3) 혹시 모를 예외
+  document.getElementById('locked-banner').style.display = 'block';
+  loading.style.display = 'none';
+}
+
+  /* ══════════ 월요일 렌더 ══════════ */
+  function renderMonData(allData) {
+    let total = 0;
+    CATEGORIES.forEach(cat => {
+      const entries = allData[cat] || {};
+      const names = Object.entries(entries);
+      total += names.length;
+      document.getElementById(`count-${cat}`).textContent = names.length;
+      const sEl = document.getElementById(`s-${cat}`);
+      if (sEl) sEl.textContent = names.length;
+      const listEl = document.getElementById(`list-${cat}`);
+      listEl.innerHTML = '';
+      if (!names.length) { listEl.innerHTML='<span class="empty-hint">아직 아무도 없어요</span>'; return; }
+      names.forEach(([uid,name]) => {
+        const tag = document.createElement('span');
+        const mine = uid===MY_ID;
+        tag.className = 'name-tag'+(mine?'':' readonly');
+        if (mine) {
+          tag.innerHTML = `${name} <button class="remove-btn">✕</button>`;
+          tag.querySelector('.remove-btn').addEventListener('click', ()=>remove(entryRef(cat,uid)));
+        } else { tag.textContent = name; }
+        listEl.appendChild(tag);
+      });
+    });
+    document.getElementById('total-count').textContent = total;
+  }
+
+  window.addName = async function(cat) {
+    const input = document.getElementById(`input-${cat}`);
+    const name = input.value.trim(); if (!name) return;
+    const snap = await get(rootRef());
+    const allData = snap.val() || {};
+    let dup=false;
+    CATEGORIES.forEach(c=>{ Object.values(allData[c]||{}).forEach(n=>{ if(n===name) dup=true; }); });
+    if (dup) {
+      input.style.borderColor='#e83a3a'; input.placeholder='이미 등록된 이름이에요!'; input.value='';
+      setTimeout(()=>{ input.style.borderColor=''; input.placeholder='이름 입력 후 Enter'; },1800);
+      return;
+    }
+    for (const c of CATEGORIES) { if(MY_ID in (allData[c]||{})) await remove(entryRef(c,MY_ID)); }
+    await set(entryRef(cat,MY_ID), name);
+    input.value='';
+  };
+
+  CATEGORIES.forEach(cat=>{
+    const el=document.getElementById(`input-${cat}`);
+    if(el) el.addEventListener('keydown',e=>{ if(e.key==='Enter') addName(cat); });
+  });
+
+  /* ══════════ 자유 메뉴 ══════════ */
+  function renderCustomMenus(customData) {
+    const grid = document.getElementById('custom-grid');
+    if (!customData||!Object.keys(customData).length) {
+      grid.innerHTML='<div class="custom-empty">아직 제안된 메뉴가 없어요</div>'; return;
+    }
+    grid.innerHTML='';
+    Object.entries(customData).forEach(([menuId,menuData])=>{
+      if (!menuData?.menuName) return;
+      const joiners = menuData.joiners||{};
+      const amIJoined = MY_ID in joiners;
+      const card = document.createElement('div');
+      card.className='custom-card';
+      let joinersHTML = Object.entries(joiners).map(([uid,name])=>
+        uid===MY_ID
+          ? `<span class="custom-joiner-tag is-mine">${name} <button class="leave-btn" data-menu="${menuId}">✕</button></span>`
+          : `<span class="custom-joiner-tag">${name}</span>`
+      ).join('')||'<span style="font-size:12px;color:#c0a888;font-style:italic">아직 아무도 없어요</span>';
+      const joinSection = amIJoined?'':
+        `<button class="btn-join" onclick="showJoinInput('${menuId}')">같이 먹을래요 +</button>
+         <div class="custom-join-input-row" id="join-row-${menuId}" style="display:none">
+           <input type="text" placeholder="내 이름" maxlength="10" id="join-name-${menuId}">
+           <button class="btn-join-confirm" onclick="joinMenu('${menuId}')">참여</button>
+         </div>`;
+      card.innerHTML=`
+        <div class="custom-card-header">
+          <div><div class="custom-menu-name">🍴 ${menuData.menuName}</div><div class="custom-proposer">제안자: ${menuData.proposerName}</div></div>
+          <button class="custom-delete-btn">✕</button>
+        </div>
+        <div class="custom-joiners">${joinersHTML}</div>${joinSection}`;
+      card.querySelector('.custom-delete-btn').addEventListener('click',()=>remove(customMenu(menuId)));
+      card.querySelectorAll('.leave-btn').forEach(btn=>btn.addEventListener('click',()=>remove(customJoiner(btn.dataset.menu,MY_ID))));
+      const ji=card.querySelector(`#join-name-${menuId}`);
+      if(ji) ji.addEventListener('keydown',e=>{ if(e.key==='Enter') joinMenu(menuId); });
+      grid.appendChild(card);
+    });
+  }
+
+  window.proposeMenu = async function() {
+    const mi=document.getElementById('input-menu-name'), ni=document.getElementById('input-proposer-name');
+    const menuName=mi.value.trim(), proposerName=ni.value.trim();
+    if(!menuName||!proposerName){
+      if(!menuName){mi.style.borderColor='#e83a3a';setTimeout(()=>mi.style.borderColor='',1500);}
+      if(!proposerName){ni.style.borderColor='#e83a3a';setTimeout(()=>ni.style.borderColor='',1500);}
+      return;
+    }
+    const snap=await get(customRoot()); const cd=snap.val()||{};
+    if(Object.values(cd).some(m=>m.proposerUid===MY_ID)){
+      mi.placeholder='이미 메뉴를 제안했어요!'; mi.style.borderColor='#e83a3a'; mi.value='';
+      setTimeout(()=>{ mi.style.borderColor=''; mi.placeholder='메뉴 이름 (예: 마라탕, 버거킹)'; },2000); return;
+    }
+    const menuId='menu_'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+    await set(customMenu(menuId),{menuName,proposerName,proposerUid:MY_ID,joiners:{[MY_ID]:proposerName}});
+    mi.value=''; ni.value='';
+  };
+
+  window.showJoinInput = function(menuId) {
+    const row=document.getElementById(`join-row-${menuId}`); if(!row) return;
+    row.style.display=row.style.display==='none'?'flex':'none';
+    const inp=document.getElementById(`join-name-${menuId}`);
+    if(inp&&row.style.display==='flex') inp.focus();
+  };
+
+  window.joinMenu = async function(menuId) {
+    const input=document.getElementById(`join-name-${menuId}`); if(!input) return;
+    const name=input.value.trim();
+    if(!name){input.style.borderColor='#e83a3a';setTimeout(()=>input.style.borderColor='',1200);return;}
+    const snap=await get(customRoot()); const cd=snap.val()||{};
+    for(const [id,m] of Object.entries(cd)){
+      if(id!==menuId&&m.joiners&&MY_ID in m.joiners) await remove(customJoiner(id,MY_ID));
+    }
+    await set(customJoiner(menuId,MY_ID),name); input.value='';
+  };
+
+  /* ══════════ 관리자 모달 (초기화) ══════════ */
+  window.openResetModal = function(){
+    document.getElementById('modal-overlay').classList.add('open');
+    document.getElementById('pw-input').value='';
+    document.getElementById('pw-error').textContent='';
+    setTimeout(()=>document.getElementById('pw-input').focus(),80);
+  };
+  window.closeModal = function(){ document.getElementById('modal-overlay').classList.remove('open'); };
+  window.doReset = async function(){
+    const pw=document.getElementById('pw-input').value;
+    if(pw!==ADMIN_PASSWORD){
+      document.getElementById('pw-error').textContent='비밀번호가 올바르지 않아요.';
+      const inp=document.getElementById('pw-input'); inp.classList.add('error'); inp.value='';
+      setTimeout(()=>inp.classList.remove('error'),400); return;
+    }
+    await remove(rootRef()); closeModal();
+  };
+  document.getElementById('modal-overlay').addEventListener('click',e=>{ if(e.target===e.currentTarget) closeModal(); });
+
+  /* ══════════ 관리자 로그인 (룰렛) ══════════ */
+  window.openAdminLogin = function(){
+    document.getElementById('admin-login-modal').classList.add('open');
+    document.getElementById('admin-pw-input').value='';
+    document.getElementById('admin-pw-error').textContent='';
+    setTimeout(()=>document.getElementById('admin-pw-input').focus(),80);
+  };
+  window.closeAdminLogin = function(){ document.getElementById('admin-login-modal').classList.remove('open'); };
+  window.doAdminLogin = function(){
+    const pw=document.getElementById('admin-pw-input').value;
+    if(pw!==ADMIN_PASSWORD){
+      document.getElementById('admin-pw-error').textContent='비밀번호가 올바르지 않아요.';
+      const inp=document.getElementById('admin-pw-input'); inp.classList.add('error'); inp.value='';
+      setTimeout(()=>inp.classList.remove('error'),400); return;
+    }
+    isAdmin=true; closeAdminLogin();
+    document.getElementById('admin-login-area').style.display='none';
+    showAdminPanel();
+  };
+  document.getElementById('admin-login-modal').addEventListener('click',e=>{ if(e.target===e.currentTarget) closeAdminLogin(); });
+
+  /* ══════════ 출석 체크 패널 ══════════ */
+  function showAdminPanel(){
+    document.getElementById('admin-panel').style.display='block';
+    const grid=document.getElementById('attendance-grid');
+    grid.innerHTML='';
+    checkedMembers.clear();
+    document.getElementById('attend-count-num').textContent='0';
+    document.getElementById('btn-spin').disabled=true;
+
+    // 마지막 주 월요일은 남성만 룰렛 처리 (수요일 페이지에서 호출되는 건 아니지만 혹시 몰라 처리)
+    const pool = (isLastMondayOfMonth() && isMonday())
+      ? ALL_MEMBERS.filter(m=>m.gender==='M')
+      : ALL_MEMBERS;
+
+    pool.forEach(member=>{
+      const chip=document.createElement('div');
+      chip.className='attend-chip';
+      chip.innerHTML=`<div class="chip-dot"></div><div><div class="chip-name">${member.name}</div><div class="chip-dept">${member.dept}</div></div>`;
+      chip.addEventListener('click',()=>{
+        if(checkedMembers.has(member.name)){ checkedMembers.delete(member.name); chip.classList.remove('checked'); }
+        else { checkedMembers.add(member.name); chip.classList.add('checked'); }
+        document.getElementById('attend-count-num').textContent=checkedMembers.size;
+        document.getElementById('btn-spin').disabled=checkedMembers.size<2;
+      });
+      grid.appendChild(chip);
+    });
+  }
+
+  /* ══════════ 팀 배정 알고리즘 ══════════ */
+  function makeTeams(names){
+    const members=names.map(n=>ALL_MEMBERS.find(m=>m.name===n)||{name:n,dept:'기타'});
+    const n=members.length;
+    const teamSize=Math.round(n/Math.max(1,Math.round(n/4)));
+    const numTeams=Math.ceil(n/teamSize);
+
+    function shuffle(arr){
+      const a=[...arr];
+      for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; }
+      return a;
+    }
+
+    let best=null, bestScore=Infinity;
+    for(let t=0;t<300;t++){
+      const shuffled=shuffle(members);
+      const teams=Array.from({length:numTeams},()=>[]);
+      shuffled.forEach((m,i)=>teams[i%numTeams].push(m));
+      let score=0;
+      teams.forEach(team=>{
+        const depts=team.map(m=>m.dept);
+        depts.forEach((d,i)=>depts.slice(i+1).forEach(d2=>{ if(d===d2) score++; }));
+      });
+      if(score<bestScore){ bestScore=score; best=teams.map(t=>[...t]); }
+      if(bestScore===0) break;
+    }
+    return best;
+  }
+
+  /* ══════════ 룰렛 실행 ══════════ */
+  window.spinRoulette = async function(){
+    if(!isAdmin) return;
+    const names=[...checkedMembers];
+    if(names.length<2) return;
+
+    const btn=document.getElementById('btn-spin');
+    btn.disabled=true; btn.textContent='🎲 뽑는 중...';
+
+    const stage=document.getElementById('roulette-stage');
+    stage.innerHTML='<div class="roulette-spinning" id="spin-display">?</div>';
+    const display=document.getElementById('spin-display');
+
+    let tick=0;
+    const interval=setInterval(()=>{ display.textContent=names[tick++%names.length]; },100);
+    await new Promise(r=>setTimeout(r,2200));
+    clearInterval(interval);
+
+    const teams=makeTeams(names);
+    const TEAM_COLORS=['#0e7490','#7c5cfc','#e85d3a','#389e0d','#c41d7f','#d4380d','#1872c8'];
+    const result={
+      teams: teams.map((team,i)=>({
+        label:`Team ${i+1}`,
+        color: TEAM_COLORS[i%TEAM_COLORS.length],
+        members:team.map(m=>({name:m.name,dept:m.dept}))
+      })),
+      timestamp:Date.now()
+    };
+    await set(rouletteRef(), result);
+    btn.disabled=false; btn.textContent='🎲 다시 뽑기!';
+  };
+
+  /* ══════════ 룰렛 결과 렌더 ══════════ */
+  function renderRouletteResult(data){
+    const stage=document.getElementById('roulette-stage');
+    const grid=document.getElementById('results-grid');
+    if(!data?.teams){
+      stage.innerHTML='<div class="roulette-idle">관리자가 팀을 뽑으면 결과가 여기 나타나요 🎲</div>';
+      grid.innerHTML=''; return;
+    }
+    stage.innerHTML=`<div style="font-size:1.1rem;font-weight:700;color:var(--wed)">🎉 총 ${data.teams.length}팀 구성 완료!</div>`;
+    grid.innerHTML='';
+    data.teams.forEach((team,i)=>{
+      const card=document.createElement('div');
+      card.className='result-team';
+      card.style.cssText=`animation-delay:${i*.08}s;border-top:3px solid ${team.color}`;
+      card.innerHTML=`
+        <div class="result-team-label" style="color:${team.color}">${team.label} (${team.members.length}명)</div>
+        ${team.members.map(m=>`<div class="result-member"><span>${m.name}</span><span class="dept-tag">${m.dept}</span></div>`).join('')}`;
+      grid.appendChild(card);
+    });
+  }
+
+  /* ══════════ 결과 초기화 ══════════ */
+  window.clearRouletteResult = async function(){
+    if(!isAdmin){ openAdminLogin(); return; }
+    await remove(rouletteRef());
+  };
+
+  /* ══════════ 여성 팝업 ══════════ */
+  function showWomenPopup(){
+    const listEl=document.getElementById('women-list');
+    WOMEN_LIST.forEach(name=>{
+      const chip=document.createElement('span');
+      chip.className='women-chip'; chip.textContent=name;
+      listEl.appendChild(chip);
+    });
+    document.getElementById('women-popup').classList.add('open');
+  }
+  window.closeWomenPopup = function(){
+    document.getElementById('women-popup').classList.remove('open');
+  };
+
+  /* ══════════ 시작 ══════════ */
+  route();
+</script>
+</body>
+</html>
 
