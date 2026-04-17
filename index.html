@@ -724,6 +724,8 @@ const isAllowed   = () => ALLOWED_DAYS.includes(DOW);
   const customMenu   = (id) => ref(db, `lunch/${TODAY}/custom/${id}`);
   const customJoiner = (mid,uid) => ref(db, `lunch/${TODAY}/custom/${mid}/joiners/${uid}`);
   const rouletteRef  = () => ref(db, `roulette/${TODAY}`);
+  const attendanceRoot = () => ref(db, `roulette/${TODAY}/attendance`);
+  const myAttendanceRef = () => ref(db, `roulette/${TODAY}/attendance/${MY_ID}`);
 
   /* ── 본인 ID ── */
   function getMyId() {
