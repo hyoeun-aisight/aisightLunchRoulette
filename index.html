@@ -736,7 +736,8 @@ const isAllowed   = () => ALLOWED_DAYS.includes(DOW);
   const MY_ID = getMyId();
 
   let isAdmin = false;
-  let checkedMembers = new Set();
+  let myMember = null;
+  let currentAttendance = {};
 
   /* ── 날짜 표시 ── */
   document.getElementById('today-date').textContent = NOW.toLocaleDateString('ko-KR',{
