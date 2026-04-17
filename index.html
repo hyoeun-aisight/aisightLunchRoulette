@@ -1037,36 +1037,48 @@ document.getElementById('main-title').innerHTML =
   }
 
   /* ══════════ 룰렛 실행 ══════════ */
-  window.spinRoulette = async function(){
-    if(!isAdmin) return;
-    const names=[...checkedMembers];
-    if(names.length<2) return;
+window.spinRoulette = async function(){
+  if (!isAdmin) return;
 
-    const btn=document.getElementById('btn-spin');
-    btn.disabled=true; btn.textContent='🎲 뽑는 중...';
+  const attendanceSnap = await get(attendanceRoot());
+  const attendance = attendanceSnap.val() || {};
+  const names = Object.values(attendance).map(v => v.name);
 
-    const stage=document.getElementById('roulette-stage');
-    stage.innerHTML='<div class="roulette-spinning" id="spin-display">?</div>';
-    const display=document.getElementById('spin-display');
+  if (names.length < 2) return;
 
-    let tick=0;
-    const interval=setInterval(()=>{ display.textContent=names[tick++%names.length]; },100);
-    await new Promise(r=>setTimeout(r,2200));
-    clearInterval(interval);
+  const btn = document.getElementById('btn-spin');
+  btn.disabled = true;
+  btn.textContent = '🎲 뽑는 중...';
 
-    const teams=makeTeams(names);
-    const TEAM_COLORS=['#0e7490','#7c5cfc','#e85d3a','#389e0d','#c41d7f','#d4380d','#1872c8'];
-    const result={
-      teams: teams.map((team,i)=>({
-        label:`Team ${i+1}`,
-        color: TEAM_COLORS[i%TEAM_COLORS.length],
-        members:team.map(m=>({name:m.name,dept:m.dept}))
-      })),
-      timestamp:Date.now()
-    };
-    await set(rouletteRef(), result);
-    btn.disabled=false; btn.textContent='🎲 다시 뽑기!';
+  const stage = document.getElementById('roulette-stage');
+  stage.innerHTML = '<div class="roulette-spinning" id="spin-display">?</div>';
+  const display = document.getElementById('spin-display');
+
+  let tick = 0;
+  const interval = setInterval(() => {
+    display.textContent = names[tick++ % names.length];
+  }, 100);
+
+  await new Promise(r => setTimeout(r, 2200));
+  clearInterval(interval);
+
+  const teams = makeTeams(names);
+  const TEAM_COLORS = ['#0e7490','#7c5cfc','#e85d3a','#389e0d','#c41d7f','#d4380d','#1872c8'];
+
+  const result = {
+    teams: teams.map((team, i) => ({
+      label: `Team ${i + 1}`,
+      color: TEAM_COLORS[i % TEAM_COLORS.length],
+      members: team.map(m => ({ name: m.name, dept: m.dept }))
+    })),
+    timestamp: Date.now()
   };
+
+  await set(rouletteRef(), result);
+
+  btn.disabled = false;
+  btn.textContent = '🎲 다시 뽑기!';
+};
 
   /* ══════════ 룰렛 결과 렌더 ══════════ */
   function renderRouletteResult(data){
