@@ -772,7 +772,7 @@ const isAllowed   = () => ALLOWED_DAYS.includes(DOW);
 
     onValue(rootRef(), snap => {
       loading.style.display = 'none';
-      const d = snap.val() || {};
+      const d = snap.val() || {}; 
       renderMonData(d);
       renderCustomMenus(d.custom || {});
     });
