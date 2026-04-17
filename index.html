@@ -981,16 +981,27 @@ document.getElementById('main-title').innerHTML =
   };
   window.closeAdminLogin = function(){ document.getElementById('admin-login-modal').classList.remove('open'); };
   window.doAdminLogin = function(){
-    const pw=document.getElementById('admin-pw-input').value;
-    if(pw!==ADMIN_PASSWORD){
-      document.getElementById('admin-pw-error').textContent='비밀번호가 올바르지 않아요.';
-      const inp=document.getElementById('admin-pw-input'); inp.classList.add('error'); inp.value='';
-      setTimeout(()=>inp.classList.remove('error'),400); return;
-    }
-    isAdmin=true; closeAdminLogin();
-    document.getElementById('admin-login-area').style.display='none';
-    showAdminPanel();
-  };
+  const pw = document.getElementById('admin-pw-input').value;
+
+  if (pw !== ADMIN_PASSWORD) {
+    document.getElementById('admin-pw-error').textContent = '비밀번호가 올바르지 않아요.';
+    const inp = document.getElementById('admin-pw-input');
+    inp.classList.add('error');
+    inp.value = '';
+    setTimeout(() => inp.classList.remove('error'), 400);
+    return;
+  }
+
+  isAdmin = true;
+  closeAdminLogin();
+  document.getElementById('admin-login-area').style.display = 'none';
+  document.getElementById('admin-action-panel').style.display = 'block';
+
+  const btnSpin = document.getElementById('btn-spin');
+  if (btnSpin) {
+    btnSpin.disabled = Object.keys(currentAttendance).length < 2;
+  }
+};
   document.getElementById('admin-login-modal').addEventListener('click',e=>{ if(e.target===e.currentTarget) closeAdminLogin(); });
 
   /* ══════════ 출석 체크 패널 ══════════ */
