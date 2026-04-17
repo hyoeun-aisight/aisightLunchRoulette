@@ -562,20 +562,26 @@
   </div>
 </div>
 
-<!-- 수요일 룰렛 -->
+<!-- 월/수 룰렛 -->
 <div id="wed-page" style="display:none">
 
-  <!-- 관리자 출석 패널 -->
-  <div class="wed-panel" id="admin-panel" style="display:none">
-    <div class="section-label">🔐 관리자 — 출석 체크</div>
-    <div class="attend-count">출석 인원: <strong id="attend-count-num">0</strong>명 선택됨</div>
+  <!-- 개인 출석 체크 -->
+  <div class="wed-panel">
+    <div class="section-label">🙋 출석 체크</div>
+    <div class="attend-count">
+      출석 인원: <strong id="attend-count-num">0</strong>명
+    </div>
     <div class="attendance-grid" id="attendance-grid"></div>
-    <button class="btn-spin" id="btn-spin" onclick="spinRoulette()" disabled>🎲 팀 뽑기!</button>
   </div>
 
-  <!-- 비관리자 로그인 -->
+  <!-- 관리자 액션 -->
   <div style="text-align:center;margin-bottom:20px;" id="admin-login-area">
     <button class="btn-reset" onclick="openAdminLogin()">🔐 관리자 로그인하여 룰렛 돌리기</button>
+  </div>
+
+  <div class="wed-panel" id="admin-action-panel" style="display:none">
+    <div class="section-label">🎲 관리자 전용</div>
+    <button class="btn-spin" id="btn-spin" onclick="spinRoulette()" disabled>🎲 팀 뽑기!</button>
   </div>
 
   <!-- 룰렛 스테이지 -->
